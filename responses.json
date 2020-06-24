@@ -1,0 +1,25 @@
+{
+    "success": {
+        "addhouse": "House added to {}!",
+        "recoverhouse": "House recovered in {}!"
+    },
+    "errors": {
+        "addhouse": {
+            "default": "Uh oh! Looks like something wasn't right! Please write it like \\addhouse {Location} {Ward Number} {Plot Number} {Price} {Uptime}\nThe locations must be Uldah, Limsa, Gridania or Kugane (or just U,L,G,K for short) and the ward/plot number must be within the bounds (1-21 and 1-60 respectively).\nUptime is an option argument, but it should be the number of hours you think it's been up for",
+            "duplicate": "This house has already been posted in the last 24h!"
+        },
+        "delhouse": {
+            "default": "Uh oh! Looks like something wasn't right! Please write it like \\delhouse {Location} {House Index}/\nThe locations must be Uldah, Limsa, Gridania or Kugane (or just U,L,G,K for short). If you don't know the house index, use \\gethouses to check"
+        },
+        "recoverhouse": {
+            "default": "Failed to recover house - nothing was found to recover!"
+        },
+        "gethouses": {
+            "default": "No houses currently available (that I know about...)"
+        },
+        "default": "Command not recognised sorry! Try typing \\help for a list of commands"
+    },
+    "help": {
+        "default":"Hello I am Lalabot! I know the following commands:\nHouse Stuff:\n\t\\addhouse: Add a newly spotted available house to the list!\n\t\\gethouses: See the houses I know about that are still available\n\t\\delhouse: Remove a house one you know has been taken\n\t\\recoverhouse: Undo the last house removal\nTo-Do Lists:\n\t\\addtodo: Add a todo to the list\n\t\\deltodo: Complete a todo by its index\n\t\\todos: See a list of the outstanding todos"
+    }
+}
