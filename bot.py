@@ -3,6 +3,7 @@ import os
 import random
 import json
 import math
+import requests
 
 import discord
 from dotenv import load_dotenv
@@ -71,6 +72,14 @@ async def on_message(message):
     if command == 'todos':
         show_hidden = args[0] != "\todos"
         response = get_todos(show_hidden)
+        await message.channel.send(embed=response)
+        return
+    if command == 'test':
+        embed = discord.Embed(title="Title", description="Desc", color=0x00ff00)
+        embed.add_field(name="Field1", value="hi", inline=False)
+        embed.add_field(name="Field2", value="hi2", inline=False)
+        await message.channel.send(embed=embed)
+        return
     await message.channel.send(response)
 
 # @args - [] - the input
@@ -93,10 +102,11 @@ def validate_command(args, mandatory_args, arg_types):
     return True
 
 def add_todo(args, author):
+    author = f"{author}".split("#")[0]
     message = args[0]
     Todos.append({
         "message": message,
-        "user": f"{author}",
+        "user": author,
         "active": True,
         "timeadded": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "answered": ""
@@ -112,18 +122,26 @@ def del_todo(args, author):
     return "To-Do Completed!"
 
 def get_todos(show_hidden):
-    message = ""
+    message = discord.Embed(title="To Dos", description="A list of outstanding reminders and requests", color=0x00ff00)
     for i, item in enumerate(Todos):
-        if item['active'] or show_hidden:
-            message += f"{i}: \"{item['message']}\" requested by {item['user']} at {item['timeadded']}."
-            if not item['active'] and show_hidden:
-                message += f" Answered by {item['answered']}"
-            message += "\n"
-    if message == "":
-        message = "Sorry, no To-Dos found!"
+        if item['active']:
+            url = "https://ffxiv.gamerescape.com/wiki/" + "_".join([x.capitalize() for x in item['message'].split(" ")])
+            field_value = f"[{item['message']}]({url})"
+                # if get_db_status(item['message']) == 200 else item['message']
+            message.add_field(name=f"{i}: {item['user']}", value=field_value, inline=False)
+            # message += f"{i}: \"{item['message']}\" requested by {item['user']} at {item['timeadded']}."
+            # if not item['active'] and show_hidden:
+            #     message += f" Answered by {item['answered']}"
+            # message += "\n"
+    # if message == "":
+    #     message = "Sorry, no To-Dos found!"
     return message
         
 
+def get_db_status(item):
+    item = "_".join([x.capitalize() for x in item.split(" ")])
+    r = requests.head(f"https://ffxiv.gamerescape.com/wiki/{item}")
+    return r.status_code
 
 def add_house(args):
     # Get args: [location, ward, plot, price]
