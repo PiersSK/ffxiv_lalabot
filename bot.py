@@ -81,7 +81,7 @@ async def on_message(message):
     if command == 'isearch':
         if validate_command(args, 1, [str]):
             print(args)
-            embed = isearch(args[0])
+            embed = isearch(" ".join(args))
             await message.channel.send(embed=embed)
             return
     if command == 'test':
