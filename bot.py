@@ -11,6 +11,10 @@ from datetime import datetime, timedelta
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+API_CORE_URL = "https://garlandtools.org/db/doc/core/en/3/data.json"
+CORE_DB = requests.get(API_CORE_URL).json()
+API_SEARCH_URL = "https://garlandtools.org/api/search.php?text={}&lang=en"
+API_ITEM_URL = "https://garlandtools.org/db/doc/item/en/3/{}.json"
 Houses = json.load(open("./houses.json", "r")) # {"Uldah": [], "Limsa": [], "Gridania": [], "Kugane": []}
 Responses = json.load(open("./responses.json", "r")) 
 Todos = json.load(open("./todo.json", "r")) 
@@ -125,18 +129,55 @@ def get_todos(show_hidden):
     message = discord.Embed(title="To Dos", description="A list of outstanding reminders and requests", color=0x00ff00)
     for i, item in enumerate(Todos):
         if item['active']:
-            url = "https://ffxiv.gamerescape.com/wiki/" + "_".join([x.capitalize() for x in item['message'].split(" ")])
-            field_value = f"[{item['message']}]({url})"
-                # if get_db_status(item['message']) == 200 else item['message']
-            message.add_field(name=f"{i}: {item['user']}", value=field_value, inline=False)
-            # message += f"{i}: \"{item['message']}\" requested by {item['user']} at {item['timeadded']}."
-            # if not item['active'] and show_hidden:
-            #     message += f" Answered by {item['answered']}"
-            # message += "\n"
-    # if message == "":
-    #     message = "Sorry, no To-Dos found!"
+            message.add_field(name=f"{i}: {item['user']}", value=get_item_craft_reqs(item['message']), inline=False)
     return message
-        
+
+########################## ITEM DB SEARCH ##########################
+def search_item(search):
+    search_response = requests.get(API_SEARCH_URL.format(search.replace(" ", "%20"))).json()
+    for obj in search_response:
+        if obj['type'] == 'item':
+                return obj
+    return {}
+def get_item(item_id):
+    response = requests.get(API_ITEM_URL.format(item_id)).json()
+    return response
+
+def get_job(job_id):
+    response = CORE_DB['jobs']
+    for job in response:
+        if int(job['id']) == int(job_id):
+            return job['name']
+    return response
+
+def get_unlock(partials, id):
+    for item in partials:
+        if int(item['id']) == int(id):
+            return item['obj']['n']
+
+def get_item_craft_reqs(item_name):    
+    item_info = search_item(item_name)
+    if item_info:
+        id = item_info['id']
+    else:
+        print(f"WARNING: Couldn't find an item - {item_name}")
+        return item_name
+
+    iresponse = get_item(id)
+    item = iresponse['item']
+
+    msg = f"[{item['name']}](https://garlandtools.org/db/#item/{id})"
+
+    if 'craft' in item:
+        job_name = get_job(item['craft'][0]['job'])
+        job_lvl = item['craft'][0]['lvl']
+        msg += f" - {job_name} Lvl{job_lvl}"
+        if 'unlockId' in item['craft'][0]:
+            unlock = get_unlock(iresponse['partials'], item['craft'][0]['unlockId'])
+            msg += f" (Requires {unlock})"
+
+    return msg
+##############################################################################
 
 def get_db_status(item):
     item = "_".join([x.capitalize() for x in item.split(" ")])
