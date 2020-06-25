@@ -78,6 +78,12 @@ async def on_message(message):
         response = get_todos(show_hidden)
         await message.channel.send(embed=response)
         return
+    if command == 'isearch':
+        if validate_command(args, 1, [str]):
+            print(args)
+            embed = isearch(args[0])
+            await message.channel.send(embed=embed)
+            return
     if command == 'test':
         embed = discord.Embed(title="Title", description="Desc", color=0x00ff00)
         embed.add_field(name="Field1", value="hi", inline=False)
@@ -154,6 +160,29 @@ def get_unlock(partials, id):
     for item in partials:
         if int(item['id']) == int(id):
             return item['obj']['n']
+
+def isearch(item_name):
+    item_info = search_item(item_name)
+    if item_info:
+        id = item_info['id']
+    else:
+        print(f"WARNING: Couldn't find an item - {item_name}")
+        return item_name
+
+    iresponse = get_item(id)
+    item = iresponse['item']
+    print(f"https://garlandtools.org/files/icons/item/{id}.png")
+    message = discord.Embed(
+        title=item['name']
+        ,description=f"Item Level {item['ilvl']}"
+        ,color=0x39a0d4
+    )
+
+    message.set_thumbnail(url=f"https://garlandtools.org/files/icons/item/{item['icon']}.png")
+    # message.set_image("https://garlandtools.org/files/icons/item/30056.png")
+
+
+    return message
 
 def get_item_craft_reqs(item_name):    
     item_info = search_item(item_name)
