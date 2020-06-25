@@ -179,6 +179,7 @@ def isearch(item_name):
     )
 
     message.set_thumbnail(url=f"https://garlandtools.org/files/icons/item/{item['icon']}.png")
+    message.add_field(name="More Info...", value=get_item_craft_reqs(item_name), inline=False)
     # message.set_image("https://garlandtools.org/files/icons/item/30056.png")
 
 
