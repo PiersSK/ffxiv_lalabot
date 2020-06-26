@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
 load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+TOKEN = os.getenv("DISCORD_TOKEN")
 API_CORE_URL = "https://garlandtools.org/db/doc/core/en/3/data.json"
 CORE_DB = requests.get(API_CORE_URL).json()
 API_SEARCH_URL = "https://garlandtools.org/api/search.php?text={}&lang=en"
@@ -29,7 +29,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
-    print(f'{client.user.name} has connected to Discord!')
+    print(f"{client.user.name} has connected to Discord!")
 
 @client.event
 async def on_message(message):
@@ -42,48 +42,48 @@ async def on_message(message):
     args = message.content.split()[1:]
     print(f"Command detected from {message.author}: {command}")
 
-    if command == 'addhouse':
+    if command == "addhouse":
         if validate_command(args, 4, [str, int, int, str, int]):
             response = add_house(args)
         else:
             response = Responses["errors"]["addhouse"]["default"]
-    elif command == 'gethouses':
+    elif command == "gethouses":
         response = get_houses()
-    elif command == 'delhouse':
+    elif command == "delhouse":
         if validate_command(args, 2, [str, int]):
             response = del_house(args)
         else:
             response =  Responses["errors"]["delhouse"]["default"]
-    elif command == 'recoverhouse':
+    elif command == "recoverhouse":
         response = recover_house()
-    elif command == 'help':
+    elif command == "help":
         response = Responses["help"]["default"]
-    elif command == 'addtodo':
+    elif command == "addtodo":
         if validate_command(args, 1, [str]):
             print(args)
             print(args[0])
             response = add_todo([" ".join(args)], message.author)
         else:
             response = Responses["errors"]["default"]
-    elif command == 'deltodo':
+    elif command == "deltodo":
         if validate_command(args, 1, [int]):
             print(args)
             print(args[0])
             response = del_todo(args, message.author)
         else:
             response = Responses["errors"]["default"]
-    elif command == 'todos':
+    elif command == "todos":
         show_hidden = args[0] != "\todos"
         response = get_todos(show_hidden)
         await message.channel.send(embed=response)
         return
-    elif command == 'isearch':
+    elif command == "isearch":
         if validate_command(args, 1, [str]):
             print(args)
             embed = isearch(" ".join(args))
             await message.channel.send(embed=embed)
             return
-    elif command == 'test':
+    elif command == "test":
         embed = discord.Embed(title="Title", description="Desc", color=0x00ff00)
         embed.add_field(name="Field1", value="hi", inline=False)
         embed.add_field(name="Field2", value="hi2", inline=False)
@@ -91,7 +91,7 @@ async def on_message(message):
         return
     else:
         response = Responses["errors"]["default"]
-        
+
     await message.channel.send(response)
 
 # @args - [] - the input
@@ -136,15 +136,15 @@ def del_todo(args, author):
 def get_todos(show_hidden):
     message = discord.Embed(title="To Dos", description="A list of outstanding reminders and requests", color=0x00ff00)
     for i, item in enumerate(Todos):
-        if item['active']:
-            message.add_field(name=f"{i}: {item['user']}", value=get_item_craft_reqs(item['message']), inline=False)
+        if item["active"]:
+            message.add_field(name=f"{i}: {item['user']}", value=get_item_craft_reqs(item["message"]), inline=False)
     return message
 
 ########################## ITEM DB SEARCH ##########################
 def search_item(search):
     search_response = requests.get(API_SEARCH_URL.format(search.replace(" ", "%20"))).json()
     for obj in search_response:
-        if obj['type'] == 'item':
+        if obj["type"] == "item":
                 return obj
     return {}
 def get_item(item_id):
@@ -152,30 +152,30 @@ def get_item(item_id):
     return response
 
 def get_job(job_id):
-    response = CORE_DB['jobs']
+    response = CORE_DB["jobs"]
     for job in response:
-        if int(job['id']) == int(job_id):
-            return job['name']
+        if int(job["id"]) == int(job_id):
+            return job["name"]
     return response
 
 def get_unlock(partials, id):
     for item in partials:
-        if int(item['id']) == int(id):
-            return item['obj']['n']
+        if int(item["id"]) == int(id):
+            return item["obj"]["n"]
 
 def isearch(item_name):
     item_info = search_item(item_name)
     if item_info:
-        id = item_info['id']
+        id = item_info["id"]
     else:
         print(f"WARNING: Couldn't find an item - {item_name}")
         return item_name
 
     iresponse = get_item(id)
-    item = iresponse['item']
+    item = iresponse["item"]
     print(f"https://garlandtools.org/files/icons/item/{id}.png")
     message = discord.Embed(
-        title=item['name']
+        title=item["name"]
         ,description=f"Item Level {item['ilvl']}"
         ,color=0x39a0d4
     )
@@ -190,22 +190,22 @@ def isearch(item_name):
 def get_item_craft_reqs(item_name):    
     item_info = search_item(item_name)
     if item_info:
-        id = item_info['id']
+        id = item_info["id"]
     else:
         print(f"WARNING: Couldn't find an item - {item_name}")
         return item_name
 
     iresponse = get_item(id)
-    item = iresponse['item']
+    item = iresponse["item"]
 
     msg = f"[{item['name']}](https://garlandtools.org/db/#item/{id})"
 
-    if 'craft' in item:
-        job_name = get_job(item['craft'][0]['job'])
-        job_lvl = item['craft'][0]['lvl']
+    if "craft" in item:
+        job_name = get_job(item["craft"][0]["job"])
+        job_lvl = item["craft"][0]["lvl"]
         msg += f" - {job_name} Lvl{job_lvl}"
-        if 'unlockId' in item['craft'][0]:
-            unlock = get_unlock(iresponse['partials'], item['craft'][0]['unlockId'])
+        if "unlockId" in item["craft"][0]:
+            unlock = get_unlock(iresponse["partials"], item["craft"][0]["unlockId"])
             msg += f" (Requires {unlock})"
 
     return msg
