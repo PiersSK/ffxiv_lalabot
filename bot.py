@@ -41,55 +41,57 @@ async def on_message(message):
     command = message.content.split(" ")[0].replace("\\", "")
     args = message.content.split()[1:]
     print(f"Command detected from {message.author}: {command}")
-    response = Responses["errors"]["default"]
 
     if command == 'addhouse':
         if validate_command(args, 4, [str, int, int, str, int]):
             response = add_house(args)
         else:
             response = Responses["errors"]["addhouse"]["default"]
-    if command == 'gethouses':
+    elif command == 'gethouses':
         response = get_houses()
-    if command == 'delhouse':
+    elif command == 'delhouse':
         if validate_command(args, 2, [str, int]):
             response = del_house(args)
         else:
             response =  Responses["errors"]["delhouse"]["default"]
-    if command == 'recoverhouse':
+    elif command == 'recoverhouse':
         response = recover_house()
-    if command == 'help':
+    elif command == 'help':
         response = Responses["help"]["default"]
-    if command == 'addtodo':
+    elif command == 'addtodo':
         if validate_command(args, 1, [str]):
             print(args)
             print(args[0])
             response = add_todo([" ".join(args)], message.author)
         else:
             response = Responses["errors"]["default"]
-    if command == 'deltodo':
+    elif command == 'deltodo':
         if validate_command(args, 1, [int]):
             print(args)
             print(args[0])
             response = del_todo(args, message.author)
         else:
             response = Responses["errors"]["default"]
-    if command == 'todos':
+    elif command == 'todos':
         show_hidden = args[0] != "\todos"
         response = get_todos(show_hidden)
         await message.channel.send(embed=response)
         return
-    if command == 'isearch':
+    elif command == 'isearch':
         if validate_command(args, 1, [str]):
             print(args)
             embed = isearch(" ".join(args))
             await message.channel.send(embed=embed)
             return
-    if command == 'test':
+    elif command == 'test':
         embed = discord.Embed(title="Title", description="Desc", color=0x00ff00)
         embed.add_field(name="Field1", value="hi", inline=False)
         embed.add_field(name="Field2", value="hi2", inline=False)
         await message.channel.send(embed=embed)
         return
+    else:
+        response = Responses["errors"]["default"]
+        
     await message.channel.send(response)
 
 # @args - [] - the input
