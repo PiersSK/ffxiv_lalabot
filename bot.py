@@ -39,7 +39,7 @@ async def on_message(message):
         return
     
     command = message.content.split(" ")[0].replace("\\", "")
-    args = message.content.replace(message.content.split(" ")[0]+" ", "").split(" ")
+    args = message.content.split()[1:]
     print(f"Command detected from {message.author}: {command}")
     response = Responses["errors"]["default"]
 
